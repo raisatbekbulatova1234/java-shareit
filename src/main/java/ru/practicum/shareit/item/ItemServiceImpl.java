@@ -1,8 +1,10 @@
 package ru.practicum.shareit.item;
 
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exceptions.UserNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.UserRepository;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -12,9 +14,11 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
 
-    public ItemServiceImpl(ItemRepository itemRepository) {
+    public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository) {
         this.itemRepository = itemRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -25,13 +29,24 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto addItem(ItemDto itemDto, Long userId) {
-        Item item = ItemMapper.toEntity(itemDto);
-        item.setUserId(userId); // владелец задаётся сервисом
-        item.setRequestId(itemDto.getRequestId()); // сохраняем requestId
+        if (!userExists(userId)) {
+            throw new UserNotFoundException(userId);
+        }
 
+        Item item = ItemMapper.toEntity(itemDto);
+        item.setUserId(userId);
         Item savedItem = itemRepository.saveItem(item);
         return ItemMapper.toDto(savedItem);
     }
+
+    private boolean userExists(Long userId) {
+        if (userId == null || userId <= 0) {
+            return false;
+        }
+        return userRepository.existsById(userId);
+    }
+
+
 
 
     @Override

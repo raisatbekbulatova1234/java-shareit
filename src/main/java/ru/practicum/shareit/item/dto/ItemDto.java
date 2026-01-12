@@ -1,14 +1,23 @@
 package ru.practicum.shareit.item.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class ItemDto {
     private Long id;
+
+    @NotBlank(message = "Название вещи не может быть пустым")
     private String name;
+
+    @NotBlank(message = "Описание вещи не может быть пустым")
     private String description;
+
+    @NotNull(message = "Статус доступности не может быть null")
     private Boolean available;
-    private Long requestId; // передаём в API
+    private Long requestId;// передаём в API
+
     // Можно добавить только те поля, которые нужно показывать клиенту
     //В DTO нет полей, которые не должны быть видны клиенту
 }

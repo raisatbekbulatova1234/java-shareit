@@ -13,4 +13,6 @@ public interface UserRepository {
     User findById(Long userId);
 
     void delete(Long userId);
+
+    boolean existsById(Long userId);
 }

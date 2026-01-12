@@ -29,4 +29,13 @@ public class UserRepositoryImpl implements UserRepository {
     public void delete(Long id) {
         storage.remove(id);
     }
+
+    @Override
+    public boolean existsById(Long userId) {
+        // Проверяем, что userId не null и есть в хранилище
+        if (userId == null) {
+            return false;
+        }
+        return storage.containsKey(userId);
+    }
 }

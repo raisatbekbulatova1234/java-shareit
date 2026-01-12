@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -16,36 +17,44 @@ public class ItemController {
         this.itemService = itemService;
     }
 
-    // POST /items — добавление новой вещи
-    // userId передаётся в заголовке X-Sharer-User-Id
+    /**
+     * POST /items — добавление новой вещи
+     * userId передаётся в заголовке X-Sharer-User-Id
+     */
     @PostMapping
     public ResponseEntity<ItemDto> addItem(
             @RequestHeader(value = "X-Sharer-User-Id") Long userId,
-            @RequestBody ItemDto itemDto) {
+            @Valid @RequestBody ItemDto itemDto) {
 
         ItemDto savedItem = itemService.addItem(itemDto, userId);
         return ResponseEntity.status(201).body(savedItem);
     }
 
-    // PATCH /items/{itemId} — редактирование вещи (только владельцем)
+    /**
+     * PATCH /items/{itemId} — редактирование вещи (только владельцем)
+     */
     @PatchMapping("/{itemId}")
     public ResponseEntity<ItemDto> updateItem(
             @PathVariable Long itemId,
             @RequestHeader(value = "X-Sharer-User-Id") Long userId,
-            @RequestBody ItemDto itemDto) {
+            @Valid @RequestBody ItemDto itemDto) {
 
         ItemDto updatedItem = itemService.updateItem(itemId, itemDto, userId);
         return ResponseEntity.ok(updatedItem);
     }
 
-    // GET /items/{itemId} — просмотр вещи любым пользователем
+    /**
+     * GET /items/{itemId} — просмотр вещи любым пользователем
+     */
     @GetMapping("/{itemId}")
     public ResponseEntity<ItemDto> getItemById(@PathVariable Long itemId) {
         ItemDto item = itemService.getItemById(itemId);
         return ResponseEntity.ok(item);
     }
 
-    // GET /items — список вещей владельца (userId из заголовка)
+    /**
+     * GET /items — список вещей владельца (userId из заголовка)
+     */
     @GetMapping
     public ResponseEntity<List<ItemDto>> getOwnerItems(
             @RequestHeader(value = "X-Sharer-User-Id") Long userId) {
@@ -54,14 +63,23 @@ public class ItemController {
         return ResponseEntity.ok(items);
     }
 
-    // GET /items/search?text={text} — поиск доступных вещей по тексту
+    /**
+     * GET /items/search?text={text} — поиск доступных вещей по тексту
+     */
     @GetMapping("/search")
     public ResponseEntity<List<ItemDto>> searchItems(@RequestParam String text) {
-        List<ItemDto> results = itemService.searchItems(text);
+        if (text == null || text.trim().isEmpty()) {
+            return ResponseEntity.ok(List.of()); // 200 OK с пустым списком
+        }
+
+        List<ItemDto> results = itemService.searchItems(text.trim());
         return ResponseEntity.ok(results);
     }
 
-    // DELETE /items/{itemId} — удаление вещи (только владельцем)
+
+    /**
+     * DELETE /items/{itemId} — удаление вещи (только владельцем)
+     */
     @DeleteMapping("/{itemId}")
     public ResponseEntity<Void> deleteItem(
             @PathVariable Long itemId,
