@@ -19,8 +19,13 @@ public class ItemController {
         this.itemService = itemService;
     }
 
-
-    //POST /items — создание новой вещи
+    /**
+     * Создание новой вещи.
+     *
+     * @param userId  ID пользователя-владельца (из заголовка)
+     * @param itemDto данные вещи
+     * @return созданный ItemDto с статусом 201 Created
+     */
     @PostMapping
     public ResponseEntity<ItemDto> createItem(
             @RequestHeader(value = "X-Sharer-User-Id") Long userId,
@@ -30,18 +35,27 @@ public class ItemController {
         return ResponseEntity.status(201).body(createdItem);
     }
 
-
-    //GET /items/{itemId} — получение вещи по ID
+    /**
+     * Получение вещи по ID.
+     *
+     * @param itemId ID вещи
+     * @return ItemDto с статусом 200 OK
+     */
     @GetMapping("/{itemId}")
-    public ResponseEntity<ItemDto> getItem(
-            @PathVariable Long itemId) {
-
+    public ResponseEntity<ItemDto> getItem(@PathVariable Long itemId) {
         ItemDto item = itemService.getItemById(itemId);
         return ResponseEntity.ok(item);
     }
 
-
-    //PATCH /items/{itemId} — обновление вещи (только владельцем)
+    /**
+     * Частичное обновление вещи (только владельцем).
+     * Обновляются только переданные поля (не null).
+     *
+     * @param itemId    ID вещи
+     * @param userId    ID пользователя (из заголовка)
+     * @param updateDto поля для обновления
+     * @return обновлённый ItemDto с статусом 200 OK
+     */
     @PatchMapping("/{itemId}")
     public ResponseEntity<ItemDto> updateItem(
             @PathVariable Long itemId,
@@ -52,7 +66,13 @@ public class ItemController {
         return ResponseEntity.ok(updatedItem);
     }
 
-    //DELETE /items/{itemId} — удаление вещи (только владельцем)
+    /**
+     * Удаление вещи (только владельцем).
+     *
+     * @param itemId ID вещи
+     * @param userId ID пользователя (из заголовка)
+     * @return статус 204 No Content
+     */
     @DeleteMapping("/{itemId}")
     public ResponseEntity<Void> deleteItem(
             @PathVariable Long itemId,
@@ -62,8 +82,12 @@ public class ItemController {
         return ResponseEntity.noContent().build();
     }
 
-
-    //GET /items — получение списка вещей владельца
+    /**
+     * Получение списка вещей владельца.
+     *
+     * @param userId ID пользователя (из заголовка)
+     * @return список ItemDto с статусом 200 OK
+     */
     @GetMapping
     public ResponseEntity<List<ItemDto>> getOwnerItems(
             @RequestHeader(value = "X-Sharer-User-Id") Long userId) {
@@ -72,16 +96,17 @@ public class ItemController {
         return ResponseEntity.ok(items);
     }
 
-
-    //GET /items/search?text={text} — поиск доступных вещей по тексту
+    /**
+     * Поиск доступных вещей по тексту (в названии или описании).
+     *
+     * @param text поисковый запрос
+     * @return список подходящих ItemDto с статусом 200 OK
+     */
     @GetMapping("/search")
-    public ResponseEntity<List<ItemDto>> searchItems(
-            @RequestParam String text) {
-
+    public ResponseEntity<List<ItemDto>> searchItems(@RequestParam String text) {
         if (text == null || text.trim().isEmpty()) {
             return ResponseEntity.ok(List.of());
         }
-
         List<ItemDto> results = itemService.searchItems(text.trim());
         return ResponseEntity.ok(results);
     }

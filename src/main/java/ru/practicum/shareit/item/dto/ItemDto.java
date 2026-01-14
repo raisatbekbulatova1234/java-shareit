@@ -16,8 +16,6 @@ public class ItemDto {
 
     @NotNull(message = "Статус доступности не может быть null")
     private Boolean available;
-    private Long requestId;// передаём в API
+    private Long requestId;
 
-    // Можно добавить только те поля, которые нужно показывать клиенту
-    //В DTO нет полей, которые не должны быть видны клиенту
 }

@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.mapper;
 
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
@@ -10,11 +10,10 @@ public class UserMapper {
         if (user == null) return null;
         UserDto dto = new UserDto();
         dto.setId(user.getId());
-        dto.setEmail(user.getEmail());  // Может быть null — допустимо, если DTO разрешает
+        dto.setEmail(user.getEmail());
         dto.setName(user.getName());
         return dto;
     }
-
 
 
     // DTO → Entity
