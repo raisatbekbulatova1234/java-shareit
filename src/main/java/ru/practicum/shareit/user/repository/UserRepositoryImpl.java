@@ -63,9 +63,6 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public boolean existsByEmail(String email) {
-        if (email == null) {
-            return false;  // null не считается существующим email
-        }
         boolean exists = storage.values().stream()
                 .anyMatch(user -> user.getEmail() != null
                         && user.getEmail().equalsIgnoreCase(email));
@@ -75,17 +72,4 @@ public class UserRepositoryImpl implements UserRepository {
         return exists;
     }
 
-    @Override
-    public User findByEmail(String email) {
-        if (email == null) {
-            log.debug("Поиск по email=null — результат: не найден");
-            return null;
-        }
-
-        return storage.values().stream()
-                .filter(user -> user.getEmail() != null
-                        && user.getEmail().equalsIgnoreCase(email))
-                .findFirst()
-                .orElse(null);
-    }
 }

@@ -7,9 +7,6 @@ public interface ItemValidator {
 
     void validateUserId(Long userId);
 
-    void validateItemId(Long itemId);
-
-
     void validateOwner(Item item, Long userId);
 
     void validateUpdateDto(ItemUpdateDto updateDto);

@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.validation;
 
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exceptions.ForbiddenException;
 import ru.practicum.shareit.exceptions.UserNotFoundException;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;
@@ -8,9 +9,8 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.Objects;
 
-@org.springframework.stereotype.Component
+@Component
 public class ItemValidatorImpl implements ItemValidator {
-
 
     private final UserRepository userRepository;
 
@@ -20,18 +20,9 @@ public class ItemValidatorImpl implements ItemValidator {
 
     @Override
     public void validateUserId(Long userId) {
-        if (userId == null || userId <= 0) {
-            throw new IllegalArgumentException("userId должен быть положительным числом");
-        }
+
         if (!userRepository.existsById(userId)) {
             throw new UserNotFoundException(userId);
-        }
-    }
-
-    @Override
-    public void validateItemId(Long itemId) {
-        if (itemId == null || itemId <= 0) {
-            throw new IllegalArgumentException("itemId должен быть положительным числом");
         }
     }
 

@@ -1,14 +1,20 @@
 package ru.practicum.shareit.exceptions;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
-//Исключение для случаев, когда действие запрещено (например, пользователь пытается
-// изменить чужую вещь).
+public class ForbiddenException extends RuntimeException {
 
-public class ForbiddenException extends ResponseStatusException {
+    private final HttpStatus status;
 
     public ForbiddenException(String message) {
-        super(HttpStatus.FORBIDDEN, message);
+        super(message);
+        this.status = HttpStatus.FORBIDDEN; // Статус по умолчанию
     }
+
+    public ForbiddenException(String message, HttpStatus status) {
+        super(message);
+        this.status = status;
+    }
+
 }
+

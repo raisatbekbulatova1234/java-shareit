@@ -18,6 +18,7 @@ public class ExceptionHandlers {
 
     private static final Logger log = LoggerFactory.getLogger(ExceptionHandlers.class);
 
+
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleUserNotFoundException(UserNotFoundException ex) {
@@ -61,19 +62,9 @@ public class ExceptionHandlers {
         return new ErrorResponse("Conflict", ex.getMessage());
     }
 
-    @ExceptionHandler(NullPointerException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleNPE(NullPointerException ex) {
-        log.error("NullPointerException: {}", ex.getMessage(), ex);
-        return new ErrorResponse(
-                "Internal Server Error",
-                "Внутренняя ошибка: " + ex.getMessage()
-        );
-    }
-
     @ExceptionHandler(ForbiddenException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErrorResponse handleAccessDenied(ForbiddenException ex) {
+    public ErrorResponse handleForbidden(ForbiddenException ex) {
         return new ErrorResponse("Forbidden", ex.getMessage());
     }
 
@@ -81,9 +72,17 @@ public class ExceptionHandlers {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleGeneralException(Exception ex) {
         log.error("Необработанное исключение: {}, URI: {}", ex.getMessage(), ex);
+
+        // Дополнительно можно добавить проверку на NPE для логирования
+        if (ex instanceof NullPointerException) {
+            log.warn("Обнаружен NullPointerException. Рекомендуется проверить код на наличие null-ссылок.");
+        }
+
         return new ErrorResponse(
                 "Internal Server Error",
                 "Произошла внутренняя ошибка сервера"
         );
     }
 }
+
+

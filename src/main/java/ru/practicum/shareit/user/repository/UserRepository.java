@@ -18,6 +18,4 @@ public interface UserRepository {
     boolean existsById(Long userId);
 
     boolean existsByEmail(String email);
-
-    User findByEmail(String email);
 }

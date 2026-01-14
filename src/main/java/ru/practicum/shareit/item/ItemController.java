@@ -1,7 +1,9 @@
 package ru.practicum.shareit.item;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;
@@ -10,6 +12,7 @@ import ru.practicum.shareit.item.service.ItemService;
 import java.util.List;
 
 @RestController
+@Validated
 @RequestMapping("/items")
 public class ItemController {
 
@@ -28,7 +31,7 @@ public class ItemController {
      */
     @PostMapping
     public ResponseEntity<ItemDto> createItem(
-            @RequestHeader(value = "X-Sharer-User-Id") Long userId,
+            @RequestHeader(value = "X-Sharer-User-Id") @Positive Long userId,
             @Valid @RequestBody ItemDto itemDto) {
 
         ItemDto createdItem = itemService.addItem(itemDto, userId);
@@ -42,7 +45,7 @@ public class ItemController {
      * @return ItemDto с статусом 200 OK
      */
     @GetMapping("/{itemId}")
-    public ResponseEntity<ItemDto> getItem(@PathVariable Long itemId) {
+    public ResponseEntity<ItemDto> getItem(@PathVariable @Positive Long itemId) {
         ItemDto item = itemService.getItemById(itemId);
         return ResponseEntity.ok(item);
     }
@@ -59,7 +62,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ResponseEntity<ItemDto> updateItem(
             @PathVariable Long itemId,
-            @RequestHeader(value = "X-Sharer-User-Id") Long userId,
+            @RequestHeader(value = "X-Sharer-User-Id") @Positive Long userId,
             @Valid @RequestBody ItemUpdateDto updateDto) {
 
         ItemDto updatedItem = itemService.updateItem(itemId, updateDto, userId);
@@ -76,7 +79,7 @@ public class ItemController {
     @DeleteMapping("/{itemId}")
     public ResponseEntity<Void> deleteItem(
             @PathVariable Long itemId,
-            @RequestHeader(value = "X-Sharer-User-Id") Long userId) {
+            @RequestHeader(value = "X-Sharer-User-Id") @Positive Long userId) {
 
         itemService.deleteItem(itemId, userId);
         return ResponseEntity.noContent().build();
@@ -90,7 +93,7 @@ public class ItemController {
      */
     @GetMapping
     public ResponseEntity<List<ItemDto>> getOwnerItems(
-            @RequestHeader(value = "X-Sharer-User-Id") Long userId) {
+            @RequestHeader(value = "X-Sharer-User-Id") @Positive Long userId) {
 
         List<ItemDto> items = itemService.getItemsByOwner(userId);
         return ResponseEntity.ok(items);

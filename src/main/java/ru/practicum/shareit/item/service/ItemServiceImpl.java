@@ -39,13 +39,11 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public void deleteItem(long userId, long itemId) {
         itemValidator.validateUserId(userId);
-        itemValidator.validateItemId(itemId);
         itemRepository.deleteByUserIdAndItemId(userId, itemId);
     }
 
     @Override
     public ItemDto updateItem(Long itemId, ItemUpdateDto updateDto, Long userId) {
-        itemValidator.validateItemId(itemId);
         itemValidator.validateUserId(userId);
         itemValidator.validateUpdateDto(updateDto);
 
@@ -64,7 +62,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto getItemById(Long itemId) {
-        itemValidator.validateItemId(itemId);
         Item item = itemRepository.findById(itemId);
         if (item == null) {
             throw new NoSuchElementException("Вещь с ID=" + itemId + " не найдена");
@@ -74,7 +71,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getItemsByOwner(Long userId) {
-        itemValidator.validateUserId(userId); // Используем валидатор вместо ручной проверки
+        itemValidator.validateUserId(userId);
         return itemRepository.findAllByUserId(userId)
                 .stream()
                 .map(ItemMapper::toDto)
@@ -83,14 +80,11 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> searchItems(String text) {
-        if (text == null || text.trim().isEmpty()) {
-            return List.of();
-        }
         String normalizedText = text.trim().toLowerCase();
         return itemRepository.searchAvailableByText(normalizedText)
                 .stream()
                 .map(ItemMapper::toDto)
-                .toList(); // Используем toList() вместо Collectors.toList()
+                .toList();
     }
 
     private void applyUpdates(Item item, ItemUpdateDto updateDto) {

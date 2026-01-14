@@ -64,17 +64,11 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public Item findById(Long itemId) {
-        if (itemId == null || itemId <= 0) {
-            return null;
-        }
         return storage.get(itemId);
     }
 
     @Override
     public List<Item> findAllByUserId(Long userId) {
-        if (userId == null || userId <= 0) {
-            return List.of();
-        }
 
         return storage.values().stream()
                 .filter(item -> item.getUserId().equals(userId))
@@ -83,9 +77,7 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public List<Item> searchAvailableByText(String text) {
-        if (text == null || text.trim().isEmpty()) {
-            return List.of();
-        }
+
         String normalizedText = text.trim().toLowerCase();
         return storage.values().stream()
                 .filter(item -> Boolean.TRUE.equals(item.getAvailable()))

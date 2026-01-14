@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService {
     private User findUserOrThrow(Long userId) {
         User user = userRepository.findById(userId);
         if (user == null) {
-            log.warn("Пользователь с ID={} не найден", userId);
+            log.error("Пользователь с ID={} не найден", userId);
             throw new NoSuchElementException("Пользователь не найден");
         }
         return user;
