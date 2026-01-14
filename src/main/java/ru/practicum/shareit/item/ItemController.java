@@ -4,6 +4,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemUpdateDto;
+import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.List;
 
@@ -17,44 +19,51 @@ public class ItemController {
         this.itemService = itemService;
     }
 
-    /**
-     * POST /items — добавление новой вещи
-     * userId передаётся в заголовке X-Sharer-User-Id
-     */
+
+    //POST /items — создание новой вещи
     @PostMapping
-    public ResponseEntity<ItemDto> addItem(
+    public ResponseEntity<ItemDto> createItem(
             @RequestHeader(value = "X-Sharer-User-Id") Long userId,
             @Valid @RequestBody ItemDto itemDto) {
 
-        ItemDto savedItem = itemService.addItem(itemDto, userId);
-        return ResponseEntity.status(201).body(savedItem);
+        ItemDto createdItem = itemService.addItem(itemDto, userId);
+        return ResponseEntity.status(201).body(createdItem);
     }
 
-    /**
-     * PATCH /items/{itemId} — редактирование вещи (только владельцем)
-     */
-    @PatchMapping("/{itemId}")
-    public ResponseEntity<ItemDto> updateItem(
-            @PathVariable Long itemId,
-            @RequestHeader(value = "X-Sharer-User-Id") Long userId,
-            @Valid @RequestBody ItemDto itemDto) {
 
-        ItemDto updatedItem = itemService.updateItem(itemId, itemDto, userId);
-        return ResponseEntity.ok(updatedItem);
-    }
-
-    /**
-     * GET /items/{itemId} — просмотр вещи любым пользователем
-     */
+    //GET /items/{itemId} — получение вещи по ID
     @GetMapping("/{itemId}")
-    public ResponseEntity<ItemDto> getItemById(@PathVariable Long itemId) {
+    public ResponseEntity<ItemDto> getItem(
+            @PathVariable Long itemId) {
+
         ItemDto item = itemService.getItemById(itemId);
         return ResponseEntity.ok(item);
     }
 
-    /**
-     * GET /items — список вещей владельца (userId из заголовка)
-     */
+
+    //PATCH /items/{itemId} — обновление вещи (только владельцем)
+    @PatchMapping("/{itemId}")
+    public ResponseEntity<ItemDto> updateItem(
+            @PathVariable Long itemId,
+            @RequestHeader(value = "X-Sharer-User-Id") Long userId,
+            @Valid @RequestBody ItemUpdateDto updateDto) {
+
+        ItemDto updatedItem = itemService.updateItem(itemId, updateDto, userId);
+        return ResponseEntity.ok(updatedItem);
+    }
+
+    //DELETE /items/{itemId} — удаление вещи (только владельцем)
+    @DeleteMapping("/{itemId}")
+    public ResponseEntity<Void> deleteItem(
+            @PathVariable Long itemId,
+            @RequestHeader(value = "X-Sharer-User-Id") Long userId) {
+
+        itemService.deleteItem(itemId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+
+    //GET /items — получение списка вещей владельца
     @GetMapping
     public ResponseEntity<List<ItemDto>> getOwnerItems(
             @RequestHeader(value = "X-Sharer-User-Id") Long userId) {
@@ -63,29 +72,17 @@ public class ItemController {
         return ResponseEntity.ok(items);
     }
 
-    /**
-     * GET /items/search?text={text} — поиск доступных вещей по тексту
-     */
+
+    //GET /items/search?text={text} — поиск доступных вещей по тексту
     @GetMapping("/search")
-    public ResponseEntity<List<ItemDto>> searchItems(@RequestParam String text) {
+    public ResponseEntity<List<ItemDto>> searchItems(
+            @RequestParam String text) {
+
         if (text == null || text.trim().isEmpty()) {
-            return ResponseEntity.ok(List.of()); // 200 OK с пустым списком
+            return ResponseEntity.ok(List.of());
         }
 
         List<ItemDto> results = itemService.searchItems(text.trim());
         return ResponseEntity.ok(results);
-    }
-
-
-    /**
-     * DELETE /items/{itemId} — удаление вещи (только владельцем)
-     */
-    @DeleteMapping("/{itemId}")
-    public ResponseEntity<Void> deleteItem(
-            @PathVariable Long itemId,
-            @RequestHeader(value = "X-Sharer-User-Id") Long userId) {
-
-        itemService.deleteItem(itemId, userId);
-        return ResponseEntity.noContent().build();
     }
 }

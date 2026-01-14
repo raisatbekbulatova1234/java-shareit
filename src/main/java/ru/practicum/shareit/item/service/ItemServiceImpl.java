@@ -1,10 +1,14 @@
-package ru.practicum.shareit.item;
+package ru.practicum.shareit.item.service;
 
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exceptions.ForbiddenException;
 import ru.practicum.shareit.exceptions.UserNotFoundException;
+import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemUpdateDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -46,9 +50,6 @@ public class ItemServiceImpl implements ItemService {
         return userRepository.existsById(userId);
     }
 
-
-
-
     @Override
     public void deleteItem(long userId, long itemId) {
         if (userId <= 0 || itemId <= 0) {
@@ -58,23 +59,33 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto updateItem(Long itemId, ItemDto itemDto, Long userId) {
+    public ItemDto updateItem(Long itemId, ItemUpdateDto updateDto, Long userId) {
         Item existingItem = itemRepository.findById(itemId);
         if (existingItem == null) {
             throw new NoSuchElementException("Вещь не найдена");
         }
         if (!existingItem.getUserId().equals(userId)) {
-            throw new IllegalArgumentException("Только владелец может редактировать вещь");
+            throw new ForbiddenException("Только владелец может редактировать вещь");
         }
 
-        existingItem.setName(itemDto.getName());
-        existingItem.setDescription(itemDto.getDescription());
-        existingItem.setAvailable(itemDto.getAvailable());
-        existingItem.setRequestId(itemDto.getRequestId()); // обновляем requestId
+        // Обновляем только не‑null поля
+        if (updateDto.getName() != null) {
+            existingItem.setName(updateDto.getName());
+        }
+        if (updateDto.getDescription() != null) {
+            existingItem.setDescription(updateDto.getDescription());
+        }
+        if (updateDto.getAvailable() != null) {
+            existingItem.setAvailable(updateDto.getAvailable());
+        }
+        if (updateDto.getRequestId() != null) {
+            existingItem.setRequestId(updateDto.getRequestId());
+        }
 
         Item updatedItem = itemRepository.saveItem(existingItem);
         return ItemMapper.toDto(updatedItem);
     }
+
 
     @Override
     public ItemDto getItemById(Long itemId) {
