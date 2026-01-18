@@ -1,2 +1,2 @@
 # java-shareit
-Template repository for Shareit project.
+        добавлена возможность бронирования веще и комментирования
