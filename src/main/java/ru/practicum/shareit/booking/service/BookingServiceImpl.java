@@ -1,16 +1,20 @@
 package ru.practicum.shareit.booking.service;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.BookingState;
-import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.CreateBookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.booking.validation.BookingValidator;
-import ru.practicum.shareit.exceptions.NotFoundException;
+import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.booking.model.QBooking;
+import ru.practicum.shareit.booking.model.States;
+import ru.practicum.shareit.booking.storage.BookingRepository;
+import ru.practicum.shareit.booking.validator.BookingValidator;
+import ru.practicum.shareit.exception.ConditionsNotMetException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
@@ -18,93 +22,107 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
 
-    private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
-    private final BookingValidator bookingValidator;
+    private final BookingRepository bookingRepository;
 
-    @Transactional
-    public BookingDto createBooking(BookingDto requestDto, Long bookerId) {
-        // 1. Загрузка зависимостей
-        User booker = userRepository.findById(bookerId)
-                .orElseThrow(() -> new NotFoundException("Пользователь", bookerId));
-        Item item = itemRepository.findById(requestDto.getItem().getId())
-                .orElseThrow(() -> new NotFoundException("Вещь", requestDto.getItem().getId()));
+    @Override
+    public BookingDto createBooking(CreateBookingDto createBookingDto, Long userId) {
+        Long itemId = createBookingDto.getItemId();
+        Item bookingItem = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Item с id " + itemId + " не найден"));
 
-        // 2. Преобразование DTO в сущность
-        Booking booking = BookingMapper.toEntity(requestDto);
-        booking.setItem(item);
-        booking.setBooker(booker);
-        booking.setStatus(BookingStatus.WAITING);
+        User user = getUser(userId);
 
-        // 3. Валидация бизнес-правил
-        bookingValidator.validateCreateBooking(booking);
+        Booking newBooking = BookingValidator.validateBooking(BookingMapper.toBooking(createBookingDto,
+                bookingItem, user));
 
-        // 4. Сохранение и возврат DTO
-        Booking savedBooking = bookingRepository.save(booking);
-        return BookingMapper.toDto(savedBooking);
+        return BookingMapper.toBookingDto(bookingRepository.save(newBooking));
     }
 
-    // Подтверждение или отклонение бронирования владельцем вещи
-    @Transactional
-    public BookingDto approveOrRejectBooking(Long bookingId, Long ownerId, BookingStatus newStatus) {
-        bookingValidator.validateApprovalRights(bookingId, ownerId);
+    @Override
+    public BookingDto approve(Long userId, Long bookingId, boolean approved) {
+        Booking booking = getBooking(bookingId);
 
-        Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new NotFoundException("Бронирование", bookingId));
+        if (!booking.getItem().getOwner().getId().equals(userId)) {
+            throw new ConditionsNotMetException("User с id " + userId + " не является владельцем вещи запроса с id "
+                    + bookingId);
+        }
 
-        booking.setStatus(newStatus);
-        Booking updatedBooking = bookingRepository.save(booking);
+        booking.setStatus(getStatusByApprove(approved));
 
-        return BookingMapper.toDto(updatedBooking);
+        return BookingMapper.toBookingDto(bookingRepository.save(booking));
     }
 
-    public BookingDto getBookingById(Long bookingId, Long userId) {
-        bookingValidator.validateAccessToBooking(bookingId, userId);
+    @Override
+    public BookingDto findBooking(Long bookingId, Long userId) {
+        Booking booking = getBooking(bookingId);
 
-        Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new NotFoundException("Бронирование", bookingId));
+        User booker = booking.getBooker();
+        User itemOwner = booking.getItem().getOwner();
 
-        return BookingMapper.toDto(booking);
+        User requestUser = getUser(userId);
+
+        if (!(booker.equals(requestUser) || itemOwner.equals(requestUser))) {
+            throw new ConditionsNotMetException("User с id " + userId
+                    + " не является ни автором бронирования ни владелцем вещи запроса с id " + bookingId);
+        }
+
+        return BookingMapper.toBookingDto(booking);
     }
 
-    public List<BookingDto> getUserBookings(Long userId, BookingState state) {
-        List<Booking> bookings = bookingRepository.findAllByBookerId(userId);
-        return filterAndSortBookings(bookings, state);
+    @Override
+    public List<BookingDto> getBookingsByUser(Long userId, States state) {
+        BooleanExpression byState = getExpressionByState(state);
+        BooleanExpression byUserId = QBooking.booking.booker.id.eq(userId);
+
+        Iterable<Booking> res = bookingRepository.findAll(byState.and(byUserId));
+
+        return BookingMapper.toBookingDto(res);
     }
 
-    public List<BookingDto> getOwnerBookings(Long ownerId, BookingState state) {
-        List<Booking> bookings = bookingRepository.findAllByItemUserId(ownerId);
-        return filterAndSortBookings(bookings, state);
+    @Override
+    public List<BookingDto> getBookingsByOwner(Long userId, States state) {
+        getUser(userId);
+
+        BooleanExpression byOwner = QBooking.booking.item.owner.id.eq(userId);
+        BooleanExpression byState = getExpressionByState(state);
+
+        Iterable<Booking> res = bookingRepository.findAll(byOwner.and(byState));
+        return BookingMapper.toBookingDto(res);
     }
 
-    // Вспомогательные методы
-
-    private List<BookingDto> filterAndSortBookings(List<Booking> bookings, BookingState state) {
-        return bookings.stream()
-                .filter(booking -> matchesState(booking, state))
-                .sorted((b1, b2) -> b2.getStart().compareTo(b1.getStart())) // по убыванию start
-                .map(BookingMapper::toDto)
-                .collect(Collectors.toList());
+    private Booking getBooking(Long bookingId) {
+        return bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new NotFoundException("Booking с id " + bookingId + " не найден"));
     }
 
-    private boolean matchesState(Booking booking, BookingState state) {
+    private User getUser(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User с id " + id + " не найден"));
+    }
+
+    private BookingStatus getStatusByApprove(boolean approved) {
+        return approved ? BookingStatus.APPROVED : BookingStatus.REJECTED;
+    }
+
+    private BooleanExpression getExpressionByState(States state) {
+        BooleanExpression approved = QBooking.booking.status.eq(BookingStatus.APPROVED);
+
         return switch (state) {
-            case ALL -> true;
-            case CURRENT -> {
-                LocalDateTime now = LocalDateTime.now();
-                yield booking.getStart().isBefore(now) && booking.getEnd().isAfter(now);
-            }
-            case PAST -> booking.getEnd().isBefore(LocalDateTime.now());
-            case FUTURE -> booking.getStart().isAfter(LocalDateTime.now());
-            case WAITING -> booking.getStatus() == BookingStatus.WAITING;
-            case REJECTED -> booking.getStatus() == BookingStatus.REJECTED;
+            case States.ALL -> Expressions.TRUE;
+            case States.CURRENT -> approved
+                    .and(QBooking.booking.start.before(LocalDateTime.now()))
+                    .and(QBooking.booking.end.after(LocalDateTime.now()));
+            case States.FUTURE -> approved.and(QBooking.booking.start.after(LocalDateTime.now()));
+            case States.PAST -> approved.and(QBooking.booking.end.before(LocalDateTime.now()));
+            case States.WAITING -> QBooking.booking.status.eq(BookingStatus.WAITING);
+            case States.REJECTED -> QBooking.booking.status.eq(BookingStatus.REJECTED);
         };
     }
 }

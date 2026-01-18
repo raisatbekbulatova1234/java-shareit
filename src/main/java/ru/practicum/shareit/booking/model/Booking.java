@@ -1,49 +1,41 @@
 package ru.practicum.shareit.booking.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
-import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "bookings")
+@Table(name = "bookings", schema = "public")
 @Getter
 @Setter
-@ToString
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @PositiveOrZero(message = "Id должен быть больше или равен 0")
     private Long id;
-    @Column(name = "start_date")
+
+    @Column(name = "booking_start")
     private LocalDateTime start;
-    @Column(name = "end_date")
+    @Column(name = "booking_end")
     private LocalDateTime end;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "item_id")
+    @NotNull(message = "Предмет не может быть null")
     private Item item;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @ManyToOne
+    @JoinColumn(name = "booker_id")
+    @NotNull(message = "Пользователь не может быть null")
     private User booker;
 
     @Enumerated(EnumType.STRING)
+    @NotNull(message = "Статус не может быть null")
     private BookingStatus status;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Booking)) return false;
-        return id != null && id.equals(((Booking) o).getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
 }

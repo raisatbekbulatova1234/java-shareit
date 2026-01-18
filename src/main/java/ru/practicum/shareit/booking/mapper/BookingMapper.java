@@ -1,35 +1,49 @@
 package ru.practicum.shareit.booking.mapper;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.CreateBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.model.User;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BookingMapper {
-
-    public static BookingDto toDto(Booking booking) {
-        if (booking == null) return null;
-
-        BookingDto dto = new BookingDto();
-        dto.setId(booking.getId());
-        dto.setStart(booking.getStart());
-        dto.setEnd(booking.getEnd());
-        dto.setItem(ItemMapper.toDto(booking.getItem()));
-        dto.setBooker(UserMapper.toDto(booking.getBooker()));
-        dto.setStatus(booking.getStatus());
-
-        return dto;
+    public static BookingDto toBookingDto(Booking booking) {
+        return booking != null ? new BookingDto(
+                booking.getId(),
+                booking.getStart(),
+                booking.getEnd(),
+                ItemMapper.toResponseItemDto(booking.getItem(), null, null, null),
+                UserMapper.toUserDto(booking.getBooker()),
+                booking.getStatus()
+        ) : null;
     }
 
-    public static Booking toEntity(BookingDto dto) {
-        if (dto == null) return null;
+    public static List<BookingDto> toBookingDto(Iterable<Booking> bookings) {
+        List<BookingDto> res = new ArrayList<>();
 
+        bookings.forEach(booking -> res.add(toBookingDto(booking)));
+
+        return res;
+    }
+
+    public static Booking toBooking(CreateBookingDto bookingDto, Item item, User user) {
         Booking booking = new Booking();
-        booking.setId(dto.getId());
-        booking.setStart(dto.getStart());
-        booking.setEnd(dto.getEnd());
-        // Предполагается, что item и booker уже загружены в сервисе
-        // (иначе будет NPE — контроль на уровне сервиса!)
+
+        booking.setStart(bookingDto.getStart());
+        booking.setEnd(bookingDto.getEnd());
+        booking.setItem(item);
+        booking.setBooker(user);
+        booking.setStatus(BookingStatus.WAITING);
+
         return booking;
     }
 }

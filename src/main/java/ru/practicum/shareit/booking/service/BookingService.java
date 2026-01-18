@@ -1,29 +1,19 @@
 package ru.practicum.shareit.booking.service;
 
-import ru.practicum.shareit.booking.BookingState;
-import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.CreateBookingDto;
+import ru.practicum.shareit.booking.model.States;
 
 import java.util.List;
 
 public interface BookingService {
+    BookingDto createBooking(CreateBookingDto createBookingDto, Long userId);
 
-    //Создание нового бронирования.
-    BookingDto createBooking(BookingDto requestDto, Long bookerId);
+    BookingDto approve(Long userId, Long bookingId, boolean approved);
 
-    //Подтверждение или отклонение бронирования владельцем вещи.
+    BookingDto findBooking(Long bookingId, Long userId);
 
-    BookingDto approveOrRejectBooking(Long bookingId, Long ownerId, BookingStatus newStatus);
+    List<BookingDto> getBookingsByUser(Long userId, States state);
 
-    // Получение бронирования по ID с проверкой прав доступа.
-
-    BookingDto getBookingById(Long bookingId, Long userId);
-
-    //Получение списка бронирований пользователя (как booker).
-
-    List<BookingDto> getUserBookings(Long userId, BookingState state);
-
-    //Получение списка бронирований вещей пользователя (как owner).
-
-    List<BookingDto> getOwnerBookings(Long ownerId, BookingState state);
+    List<BookingDto> getBookingsByOwner(Long userId, States state);
 }
