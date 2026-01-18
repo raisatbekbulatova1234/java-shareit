@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class ItemDto {
     private Long id;
@@ -18,4 +20,10 @@ public class ItemDto {
     private Boolean available;
     private Long requestId;
 
+    //даты последнего и следующего бронирования
+    private LocalDateTime lastBookingStart;
+    private LocalDateTime lastBookingEnd;
+
+    private LocalDateTime nextBookingStart;
+    private LocalDateTime nextBookingEnd;
 }

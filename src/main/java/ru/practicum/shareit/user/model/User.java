@@ -1,11 +1,34 @@
 package ru.practicum.shareit.user.model;
 
-import lombok.Data;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-@Data
+@Entity
+@Table(name = "users")
+@Getter
+@Setter
+@ToString
 public class User {
+    @Id
+    @GeneratedValue
     private Long id;
+    @Column()
     private String email;
+    @Column()
     private String name;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        return id != null && id.equals(((User) o).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
 

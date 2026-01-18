@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.exceptions.ConflictException;
 import ru.practicum.shareit.exceptions.ForbiddenException;
-import ru.practicum.shareit.exceptions.UserNotFoundException;
+import ru.practicum.shareit.exceptions.NotFoundException;
 
 import java.util.NoSuchElementException;
 
@@ -19,9 +19,9 @@ public class ExceptionHandlers {
     private static final Logger log = LoggerFactory.getLogger(ExceptionHandlers.class);
 
 
-    @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleUserNotFoundException(UserNotFoundException ex) {
+    public ErrorResponse handleUserNotFoundException(NotFoundException ex) {
         return new ErrorResponse("Not Found", ex.getMessage());
     }
 

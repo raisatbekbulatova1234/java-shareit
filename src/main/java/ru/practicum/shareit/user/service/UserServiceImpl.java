@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -29,7 +30,7 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(UserMapper::toDto)
-                .collect(java.util.stream.Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -39,48 +40,46 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto createUser(UserDto userDto) {
-        userValidator.validateCreate(userDto); // Валидация при создании
-
+        userValidator.validateCreate(userDto);
 
         User user = UserMapper.toEntity(userDto);
         User savedUser = userRepository.save(user);
-        log.info("Создан пользователь с ID={}", savedUser.getId());
+        log.info("Пользователь создан. ID={}", savedUser.getId());
         return UserMapper.toDto(savedUser);
     }
 
     @Override
+    @Transactional
     public UserDto updateUser(Long userId, UserDto userDto) {
         User existingUser = findUserOrThrow(userId);
 
-        userValidator.validateUpdate(userDto, existingUser.getEmail()); // Валидация при обновлении
+        userValidator.validateUpdate(userDto, existingUser.getEmail());
 
-
-        // Обновление полей
         if (userDto.getEmail() != null) {
             existingUser.setEmail(userDto.getEmail());
         }
         existingUser.setName(userDto.getName());
 
         User updatedUser = userRepository.save(existingUser);
-        log.info("Обновлён пользователь с ID={}", updatedUser.getId());
+        log.info("Пользователь обновлен. ID={}", updatedUser.getId());
         return UserMapper.toDto(updatedUser);
     }
 
     @Override
+    @Transactional
     public void deleteUser(Long userId) {
-        findUserOrThrow(userId); // Проверяем существование
-        userRepository.delete(userId);
-        log.info("Удален пользователь с ID={}", userId);
+        findUserOrThrow(userId);
+        userRepository.deleteById(userId);
+        log.info("Пользователь удален. ID={}", userId);
     }
 
-    // Вспомогательный метод
     private User findUserOrThrow(Long userId) {
-        User user = userRepository.findById(userId);
-        if (user == null) {
-            log.error("Пользователь с ID={} не найден", userId);
-            throw new NoSuchElementException("Пользователь не найден");
-        }
-        return user;
+        return userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.error("Пользователь с ID={} не найден", userId);
+                    return new NoSuchElementException("Пользователь не найден");
+                });
     }
 }

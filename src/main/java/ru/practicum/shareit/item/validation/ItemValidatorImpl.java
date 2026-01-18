@@ -2,7 +2,7 @@ package ru.practicum.shareit.item.validation;
 
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exceptions.ForbiddenException;
-import ru.practicum.shareit.exceptions.UserNotFoundException;
+import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -22,7 +22,7 @@ public class ItemValidatorImpl implements ItemValidator {
     public void validateUserId(Long userId) {
 
         if (!userRepository.existsById(userId)) {
-            throw new UserNotFoundException(userId);
+            throw new NotFoundException("Пользователь", userId);
         }
     }
 
