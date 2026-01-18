@@ -10,4 +10,6 @@ public interface ItemValidator {
     void validateOwner(Item item, Long userId);
 
     void validateUpdateDto(ItemUpdateDto updateDto);
+
+    void validateCommentInput(String text, Long itemId, Long userId);
 }
