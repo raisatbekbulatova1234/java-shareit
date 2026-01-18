@@ -11,7 +11,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.model.QBooking;
 import ru.practicum.shareit.booking.model.States;
-import ru.practicum.shareit.booking.storage.BookingRepository;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.validator.BookingValidator;
 import ru.practicum.shareit.exception.ConditionsNotMetException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -70,7 +70,7 @@ public class BookingServiceImpl implements BookingService {
 
         if (!(booker.equals(requestUser) || itemOwner.equals(requestUser))) {
             throw new ConditionsNotMetException("User с id " + userId
-                    + " не является ни автором бронирования ни владелцем вещи запроса с id " + bookingId);
+                    + " не является ни автором бронирования ни владельцем вещи запроса с id " + bookingId);
         }
 
         return BookingMapper.toBookingDto(booking);

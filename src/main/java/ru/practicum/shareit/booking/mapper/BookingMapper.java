@@ -11,8 +11,8 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BookingMapper {
@@ -28,12 +28,11 @@ public class BookingMapper {
     }
 
     public static List<BookingDto> toBookingDto(Iterable<Booking> bookings) {
-        List<BookingDto> res = new ArrayList<>();
-
-        bookings.forEach(booking -> res.add(toBookingDto(booking)));
-
-        return res;
+        return StreamSupport.stream(bookings.spliterator(), false)
+                .map(BookingMapper::toBookingDto)  // преобразуем каждый элемент
+                .toList();
     }
+
 
     public static Booking toBooking(CreateBookingDto bookingDto, Item item, User user) {
         Booking booking = new Booking();
