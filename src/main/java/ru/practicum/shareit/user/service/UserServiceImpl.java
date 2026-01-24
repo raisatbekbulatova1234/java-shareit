@@ -1,86 +1,100 @@
 package ru.practicum.shareit.user.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.DuplicatedDataException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
-import ru.practicum.shareit.user.validation.UserValidator;
 
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
-
     private final UserRepository userRepository;
-    private final UserValidator userValidator;
 
-    public UserServiceImpl(UserRepository userRepository, UserValidator userValidator) {
-        this.userRepository = userRepository;
-        this.userValidator = userValidator;
+    @Override
+    public User create(User user) {
+        validateUserForCreation(user);
+        return userRepository.save(user);
     }
 
     @Override
-    public List<UserDto> getAllUsers() {
-        return userRepository.findAll().stream()
-                .map(UserMapper::toDto)
-                .collect(java.util.stream.Collectors.toList());
+    public User update(Long userId, UserDto newUserDto) {
+        User existingUser = getUser(userId);
+        User updatedUser = UserMapper.toUser(newUserDto, userId);
+
+        applyUpdates(existingUser, updatedUser);
+        validateEmailUniqueness(updatedUser, existingUser.getEmail());
+
+
+        return userRepository.save(updatedUser);
     }
 
     @Override
-    public UserDto getUserById(Long userId) {
-        User user = findUserOrThrow(userId);
-        return UserMapper.toDto(user);
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 
     @Override
-    public UserDto createUser(UserDto userDto) {
-        userValidator.validateCreate(userDto); // Валидация при создании
-
-
-        User user = UserMapper.toEntity(userDto);
-        User savedUser = userRepository.save(user);
-        log.info("Создан пользователь с ID={}", savedUser.getId());
-        return UserMapper.toDto(savedUser);
+    public User findById(Long id) {
+        return getUser(id);
     }
 
     @Override
-    public UserDto updateUser(Long userId, UserDto userDto) {
-        User existingUser = findUserOrThrow(userId);
-
-        userValidator.validateUpdate(userDto, existingUser.getEmail()); // Валидация при обновлении
-
-
-        // Обновление полей
-        if (userDto.getEmail() != null) {
-            existingUser.setEmail(userDto.getEmail());
-        }
-        existingUser.setName(userDto.getName());
-
-        User updatedUser = userRepository.save(existingUser);
-        log.info("Обновлён пользователь с ID={}", updatedUser.getId());
-        return UserMapper.toDto(updatedUser);
+    public boolean deleteById(Long id) {
+        getUser(id); // Проверяем существование
+        userRepository.deleteById(id);
+        return true;
     }
 
-    @Override
-    public void deleteUser(Long userId) {
-        findUserOrThrow(userId); // Проверяем существование
-        userRepository.delete(userId);
-        log.info("Удален пользователь с ID={}", userId);
-    }
+    // === Вспомогательные методы ===
 
-    // Вспомогательный метод
-    private User findUserOrThrow(Long userId) {
-        User user = userRepository.findById(userId);
+    private void validateUserForCreation(User user) {
         if (user == null) {
-            log.error("Пользователь с ID={} не найден", userId);
-            throw new NoSuchElementException("Пользователь не найден");
+            throw new IllegalArgumentException("Пользователь не может быть null");
         }
-        return user;
+        if (isBlank(user.getEmail())) {
+            throw new IllegalArgumentException("Email не может быть пустым");
+        }
+        if (emailExists(user.getEmail())) {
+            throw new DuplicatedDataException(
+                    "Пользователь с email " + user.getEmail() + " уже существует");
+        }
+    }
+
+    private void applyUpdates(User existing, User updated) {
+        updated.setName(coalesce(updated.getName(), existing.getName()));
+        updated.setEmail(coalesce(updated.getEmail(), existing.getEmail()));
+    }
+
+    private void validateEmailUniqueness(User updated, String oldEmail) {
+        String newEmail = updated.getEmail();
+        if (!Objects.equals(oldEmail, newEmail) && emailExists(newEmail)) {
+            throw new DuplicatedDataException("Email " + newEmail + " уже занят");
+        }
+    }
+
+    private boolean emailExists(String email) {
+        return userRepository.countUsersByEmail(email) > 0;
+    }
+
+    private User getUser(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(
+                        "Пользователь с id " + id + " не найден"));
+    }
+
+    private boolean isBlank(String str) {
+        return str == null || str.trim().isEmpty();
+    }
+
+    private <T> T coalesce(T value, T defaultValue) {
+        return (value != null) ? value : defaultValue;
     }
 }
