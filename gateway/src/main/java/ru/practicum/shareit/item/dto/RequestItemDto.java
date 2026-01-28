@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.dto;
+package ru.practicum.shareit.Item.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -6,9 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * DTO для создания/обновления предмета (item).
- * Используется при отправке POST/PUT‑запросов для передачи данных о предмете.
- **/
+ * TODO Sprint add-controllers.
+ */
+
 @Data
 @AllArgsConstructor
 public class RequestItemDto {

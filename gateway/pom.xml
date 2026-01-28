@@ -1,72 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <!-- Версия модели POM (стандарт для Maven 3+) -->
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <!-- Родительский проект: наследование конфигурации (версии зависимостей, плагинов и т.п.) -->
     <parent>
         <groupId>ru.practicum</groupId>
         <artifactId>shareit</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <!-- Идентификаторы текущего модуля -->
     <artifactId>shareit-gateway</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+
     <name>ShareIt Gateway</name>
 
-    <!-- Зависимости проекта -->
     <dependencies>
-        <!-- Spring Boot: основа для веб‑приложений (встроенный Tomcat, Spring MVC) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Spring Boot: поддержка валидации Bean Validation (JSR‑380) через аннотации (@NotNull, @Size и т. п.) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- Spring Boot: endpoints для мониторинга и управления приложением (например, /actuator/health) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!-- Реализация Bean Validation (используется со стартером валидации) -->
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
         </dependency>
 
-        <!-- HTTP‑клиент от Apache (версия 5.x) для выполнения HTTP‑запросов -->
         <dependency>
             <groupId>org.apache.httpcomponents.client5</groupId>
             <artifactId>httpclient5</artifactId>
         </dependency>
 
-        <!-- Генерация метаданных для конфигурационных свойств (удобство в IDE, автодополнение) -->
-        <!-- <optional>true</optional>: не включается в финальный артефакт -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
 
-        <!-- Упрощение кода через аннотации (геттеры, сеттеры, конструкторы) -->
-        <!-- <optional>true</optional>: не распространяется на зависимые проекты -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
 
-        <!-- Библиотеки для тестирования (JUnit, Mockito, Spring Test) -->
-        <!-- <scope>test</scope>: используется только в тестах -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -74,15 +58,13 @@
         </dependency>
     </dependencies>
 
-    <!-- Настройки сборки проекта -->
     <build>
         <plugins>
-            <!-- Плагин для сборки исполняемого JAR‑файла с embedded‑сервером (Tomcat) -->
-            <!-- Позволяет запускать приложение через mvn spring-boot:run -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
+
 </project>

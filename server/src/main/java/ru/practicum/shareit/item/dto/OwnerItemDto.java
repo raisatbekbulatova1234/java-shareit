@@ -5,10 +5,6 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
-/**
- * DTO для передачи подробной информации о предмете в контексте владельца.
- * Содержит расширенные данные, включая временные интервалы последних и следующих бронирований.
- */
 @Data
 @AllArgsConstructor
 public class OwnerItemDto {

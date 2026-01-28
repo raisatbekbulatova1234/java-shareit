@@ -8,8 +8,9 @@ import ru.practicum.shareit.comment.dto.CommentDto;
 import java.util.List;
 
 /**
- * DTO для передачи полной информации о предмете в ответах сервиса.
+ * TODO Sprint add-controllers.
  */
+
 @Data
 @AllArgsConstructor
 public class ResponseItemDto {

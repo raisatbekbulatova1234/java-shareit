@@ -14,19 +14,8 @@ import ru.practicum.shareit.user.model.User;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Утилитарный класс для преобразования между сущностями бронирований и DTO.
- * Обеспечивает:
- * - конвертацию Booking → BookingDto;
- * - конвертацию CreateBookingDto → Booking;
- * - массовую конвертацию коллекций бронирований.
- */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BookingMapper {
-
-    /**
-     * Преобразует сущность Booking в DTO для передачи клиенту.
-     */
     public static BookingDto toBookingDto(Booking booking) {
         return booking != null ? new BookingDto(
                 booking.getId(),
@@ -38,23 +27,14 @@ public class BookingMapper {
         ) : null;
     }
 
-    /**
-     * Преобразует коллекцию сущностей Booking в список DTO.
-     */
     public static List<BookingDto> toBookingDto(Iterable<Booking> bookings) {
         List<BookingDto> res = new ArrayList<>();
 
-        if (bookings != null) {
-            bookings.forEach(booking -> res.add(toBookingDto(booking)));
-        }
+        bookings.forEach(booking -> res.add(toBookingDto(booking)));
 
         return res;
     }
 
-    /**
-     * Создаёт сущность Booking из DTO создания бронирования.
-     * Устанавливает начальный статус WAITING и связывает с Item и User.
-     */
     public static Booking toBooking(CreateBookingDto bookingDto, Item item, User user) {
         Booking booking = new Booking();
 
@@ -62,7 +42,7 @@ public class BookingMapper {
         booking.setEnd(bookingDto.getEnd());
         booking.setItem(item);
         booking.setBooker(user);
-        booking.setStatus(BookingStatus.WAITING); // Начальный статус — ожидание подтверждения
+        booking.setStatus(BookingStatus.WAITING);
 
         return booking;
     }

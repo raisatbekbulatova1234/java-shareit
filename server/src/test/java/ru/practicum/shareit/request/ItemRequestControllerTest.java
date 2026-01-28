@@ -12,6 +12,7 @@ import ru.practicum.shareit.request.controller.ItemRequestController;
 import ru.practicum.shareit.request.dto.CreateItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
+import ru.practicum.shareit.util.CustomHttpHeader;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -59,7 +60,7 @@ public class ItemRequestControllerTest {
 
         mvc.perform(post("/requests")
                         .content(mapper.writeValueAsString(createDto))
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(CustomHttpHeader.USER_ID, 1L)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -73,7 +74,7 @@ public class ItemRequestControllerTest {
         when(service.getItemRequestsByUser(anyLong())).thenReturn(List.of(responseDto));
 
         mvc.perform(get("/requests")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(CustomHttpHeader.USER_ID, 1L)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -86,7 +87,7 @@ public class ItemRequestControllerTest {
         when(service.getAll()).thenReturn(List.of(responseDto));
 
         mvc.perform(get("/requests/all")
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(CustomHttpHeader.USER_ID, 1L)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
