@@ -9,11 +9,21 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+/**
+ * Тест-класс для проверки маппера CommentMapper.
+ * Проверяет корректность преобразования сущностей Comment в DTO (и обратно, если реализовано).
+ */
 public class CommentMapperTest {
+
     @Test
     public void nullCommentListShouldReturnNull() {
+        // Исходные данные: null-список комментариев
         List<Comment> nullList = null;
 
-        assertThat(CommentMapper.toCommentDto(nullList), nullValue());
+        // Вызов метода маппера для преобразования null-списка
+        var result = CommentMapper.toCommentDto(nullList);
+
+        // Проверка: результат должен быть null
+        assertThat(result, nullValue());
     }
 }

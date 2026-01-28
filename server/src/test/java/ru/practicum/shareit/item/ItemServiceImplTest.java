@@ -32,7 +32,13 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-
+/**
+ * Тест-класс для сервиса ItemService.
+ * Проверяет бизнес‑логику работы с предметами (items):
+ * - создание, обновление, поиск;
+ * - обработку ошибок (невалидные данные, отсутствие сущностей);
+ * - взаимодействие с комментариями и бронированиями.
+ */
 @Transactional
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.NONE
