@@ -204,6 +204,7 @@ public class BookingServiceImplTest {
 
         assertThat(res.getId(), equalTo(bookId)); // ID совпадает
     }
+
     /**
      * Тест получения бронирования владельцем.
      * Проверяет, что владелец может получить бронирование своего предмета.
@@ -365,6 +366,7 @@ public class BookingServiceImplTest {
     /**
      * Вспомогательный метод для создания бронирования по умолчанию.
      * Используется во многих тестах для подготовки тестовых данных.
+     *
      * @return созданное бронирование
      */
     private Booking createDefaultBooking() {
