@@ -44,8 +44,9 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
+            <version>42.7.3</version>  <!-- или новее -->
         </dependency>
+
 
         <!-- Упрощение кода через аннотации (геттеры, сеттеры, конструкторы) -->
         <!-- <optional>true</optional>: не распространяется на зависимые проекты -->
