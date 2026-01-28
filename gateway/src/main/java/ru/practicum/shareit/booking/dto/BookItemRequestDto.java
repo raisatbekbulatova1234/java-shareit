@@ -11,7 +11,8 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookItemRequestDto {
+public class BookItemRequestDto { //объект передачи данных (DTO) для создания бронирования
+
     private long itemId;
     @FutureOrPresent
     private LocalDateTime start;

@@ -8,9 +8,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * TODO Sprint add-item-requests.
+ * DTO для передачи данных о запросе на бронирование предмета.
+ * Содержит основную информацию о запросе и список подходящих предметов (если есть).
  */
-
 @Data
 @AllArgsConstructor
 public class ItemRequestDto {
