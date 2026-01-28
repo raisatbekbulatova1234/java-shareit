@@ -10,9 +10,13 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long>, QuerydslPredicateExecutor<Booking> {
 
-    @Query("select b from Booking b " +
-            "where b.item = ?1 " +
-            "and b.status = 'APPROVED' " +
-            "order by b.start asc")
+    /**
+     * Находит все подтверждённые бронирования для конкретного предмета (item).
+     * Возвращает список в порядке возрастания времени начала бронирования.
+     */
+    @Query("SELECT b FROM Booking b " +
+            "WHERE b.item = :item " +
+            "AND b.status = 'APPROVED' " +
+            "ORDER BY b.start ASC")
     List<Booking> findAllByItem(Item item);
 }

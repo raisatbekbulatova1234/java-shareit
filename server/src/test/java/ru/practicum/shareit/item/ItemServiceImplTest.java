@@ -1,4 +1,4 @@
-package ru.practicum.shareit.Item;
+package ru.practicum.shareit.item;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
