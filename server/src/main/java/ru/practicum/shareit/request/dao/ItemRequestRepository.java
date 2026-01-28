@@ -7,12 +7,24 @@ import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 
+/**
+ * Репозиторий для работы с сущностями ItemRequest (запросы на бронирование предметов) в базе данных.
+ */
 public interface ItemRequestRepository extends JpaRepository<ItemRequest, Long> {
-    @Query("select ir from ItemRequest ir " +
-            "where ir.requester = ?1 " +
-            "order by ir.created desc")
+
+    /**
+     * Находит все запросы на бронирование, созданные указанным пользователем (заявителем).
+     * Результаты сортируются по дате создания в порядке убывания (новые — первыми).
+     */
+    @Query("SELECT ir FROM ItemRequest ir " +
+            "WHERE ir.requester = ?1 " +
+            "ORDER BY ir.created DESC")
     List<ItemRequest> findAllByRequester(User requester);
 
-    @Query("select ir from ItemRequest ir order by ir.created desc")
+    /**
+     * Получает полный список всех запросов на бронирование в системе.
+     * Результаты сортируются по дате создания в порядке убывания (новые — первыми).
+     */
+    @Query("SELECT ir FROM ItemRequest ir ORDER BY ir.created DESC")
     List<ItemRequest> findAllOrderByCreated();
 }

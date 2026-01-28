@@ -8,8 +8,12 @@ import ru.practicum.shareit.exception.ConditionsNotMetException;
 import ru.practicum.shareit.exception.DuplicatedDataException;
 import ru.practicum.shareit.exception.NotFoundException;
 
+/**
+ * Глобальный обработчик исключений для REST‑контроллеров приложения.
+ */
 @RestControllerAdvice
 public class ErrorHandler {
+
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(DuplicatedDataException.class)
     public ErrorResponse handleDuplicatedData(DuplicatedDataException e) {
