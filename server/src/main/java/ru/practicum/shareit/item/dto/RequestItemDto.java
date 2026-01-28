@@ -4,9 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * DTO для создания и обновления информации о предмете (item).
- * Используется при отправке POST/PATCH‑запросов для передачи данных о новом или обновляемом предмете.
+ * TODO Sprint add-controllers.
  */
+
 @Data
 @AllArgsConstructor
 public class RequestItemDto {
