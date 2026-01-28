@@ -4,6 +4,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.CreateBookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -47,9 +48,10 @@ public class BookingServiceImpl implements BookingService {
     }
 
     /**
-     * Одобряет или отклоняет бронирование.l
+     * Одобряет или отклоняет бронирование.
      */
     @Override
+    @Transactional
     public BookingDto approve(Long userId, Long bookingId, boolean approved) {
         Booking booking = getBooking(bookingId);
 
@@ -67,6 +69,7 @@ public class BookingServiceImpl implements BookingService {
      * Создаёт новое бронирование.
      */
     @Override
+    @Transactional
     public BookingDto createBooking(CreateBookingDto createBookingDto, Long userId) {
         Long itemId = createBookingDto.getItemId();
         Item bookingItem = itemRepository.findById(itemId)

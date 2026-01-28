@@ -2,6 +2,7 @@ package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.DuplicatedDataException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserRequestDto;
@@ -22,8 +23,11 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Создаёт нового пользователя.
+     * @Transactional гарантирует атомарность операции: если проверка на дубликат
+     * или сохранение провалятся — транзакция будет откатана.
      */
     @Override
+    @Transactional
     public User create(UserRequestDto userDto) {
         User user = UserMapper.toUser(userDto);
 
@@ -37,8 +41,11 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Обновляет данные существующего пользователя.
+     * @Transactional обеспечивает целостность: если проверка email или сохранение
+     * завершится ошибкой — изменения не применятся.
      */
     @Override
+    @Transactional
     public User update(Long userId, UserRequestDto newUserDto) {
         User oldUser = getUser(userId);
         User newUser = UserMapper.toUser(newUserDto);
@@ -78,6 +85,7 @@ public class UserServiceImpl implements UserService {
      * Удаляет пользователя по ID.
      */
     @Override
+    @Transactional
     public boolean deleteById(Long id) {
         findById(id); // Проверяем существование пользователя
         userRepository.deleteById(id);
