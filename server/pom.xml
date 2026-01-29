@@ -72,12 +72,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Spring Boot: поддержка валидации Bean Validation (JSR‑380) через аннотации (@NotNull, @Size и т. п.) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-
         <!-- Spring Data JPA: работа с БД через репозитории и сущности -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

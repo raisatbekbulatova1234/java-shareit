@@ -11,6 +11,7 @@ import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.comment.storage.CommentRepository;
 import ru.practicum.shareit.exception.ConditionsNotMetException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.BookingPair;
 import ru.practicum.shareit.item.dto.OwnerItemDto;
 import ru.practicum.shareit.item.dto.RequestItemDto;
 import ru.practicum.shareit.item.dto.ResponseItemDto;
@@ -122,13 +123,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = getItem(itemId);
         User user = getUser(userId);
 
-        boolean hasPastBooking = bookingRepository.findAllByItem(item).stream()
-                .filter(book -> book.getEnd().isBefore(LocalDateTime.now()))
-                .map(Booking::getBooker)
-                .anyMatch(booker -> booker.equals(user));
-
-
-        if (!hasPastBooking) {
+        if (!bookingRepository.existsPastBookingForUser(itemId, userId)) {
             throw new ConditionsNotMetException(
                     "Пользователь с id " + userId + " не пользовался вещью с id " + itemId
             );
@@ -154,28 +149,29 @@ public class ItemServiceImpl implements ItemService {
         return commentRepository.findAllByItem(item);
     }
 
-    private Booking[] getLastAndNextBooking(Item item) {
-        final int PAIR_SIZE = 2;
+    private BookingPair getLastAndNextBooking(Item item) {
         List<Booking> bookings = bookingRepository.findAllByItem(item);
-        Booking[] res = new Booking[PAIR_SIZE];
-        res[0] = null; // lastBooking
-        res[1] = null; // nextBooking
+
+        Booking lastBooking = null;
+        Booking nextBooking = null;
 
         for (Booking booking : bookings) {
             if (booking.getStart().isAfter(LocalDateTime.now())) {
-                res[1] = booking; // следующее бронирование
+                nextBooking = booking; // следующее бронирование
                 break;
             }
-            res[0] = booking; // последнее завершённое
+            lastBooking = booking; // последнее завершённое
         }
-        return res;
+
+        return new BookingPair(lastBooking, nextBooking);
     }
 
     private Booking getLastBooking(Item item) {
-        return getLastAndNextBooking(item)[0];
+        return getLastAndNextBooking(item).getLastBooking();
     }
 
     private Booking getNextBooking(Item item) {
-        return getLastAndNextBooking(item)[1];
+        return getLastAndNextBooking(item).getNextBooking();
     }
+
 }

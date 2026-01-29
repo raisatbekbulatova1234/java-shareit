@@ -17,7 +17,7 @@ import java.util.List;
 public class ItemRequestMapper {
     public static ItemRequestDto toItemRequestDto(ItemRequest request, List<Item> items) {
         List<ItemDtoForRequestAnswer> answersDto = items == null
-                ? null
+                ? List.of()
                 : items.stream().map(ItemMapper::toItemDtoForRequestAnswer).toList();
 
         return new ItemRequestDto(
